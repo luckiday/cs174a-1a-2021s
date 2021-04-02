@@ -1,1 +1,1 @@
-# -cs174a-1a-2021s
+# CS174A - Computer Graphics
