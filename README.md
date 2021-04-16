@@ -12,3 +12,8 @@
 - Mock midterm
 - Assignment 1 (Part 2) - WebGL Programming
 - Assignment 2 (Part 1)
+
+### Week 3
+
+- Transformations
+- Assignment 2 (Part 2)
