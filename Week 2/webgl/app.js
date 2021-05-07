@@ -17,8 +17,8 @@ function getSource(url) {
 
 function Demo() {
 
-    let vertexShaderText = getSource('./vertexShader.glsl');
-    let fragmentShaderText = getSource('./fragmentShader.glsl')
+    let vertexShaderText = getSource('./vertexShader.shaders');
+    let fragmentShaderText = getSource('./fragmentShader.shaders')
 
 
     console.log("This is working");
@@ -69,7 +69,7 @@ function Demo() {
     // }
 
     /**
-     * Create buffer and link the buffer with glsl variables
+     * Create buffer and link the buffer with shaders variables
      */
     let triangleVertices = [
         // X, Y, R, G, B
