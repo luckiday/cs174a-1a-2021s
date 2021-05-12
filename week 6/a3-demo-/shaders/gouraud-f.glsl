@@ -51,10 +51,10 @@ attribute vec3 position, normal;
 uniform mat4 model_transform;
 uniform mat4 projection_camera_model_transform;
 
+varying vec3 color;
 void main(){
-    // The vertex's final resting place (in NDCS):
-    gl_Position = projection_camera_model_transform * vec4(position, 1.0);
-    // The final normal vector in screen space.
-    N = normalize(mat3(model_transform) * normal / squared_scale);
-    vertex_worldspace = (model_transform * vec4(position, 1.0)).xyz;
+    // Compute an initial (ambient) color:
+    gl_FragColor = vec4( shape_color.xyz * ambient, shape_color.w );
+    // Compute the final color with contributions from lights:
+    gl_FragColor.xyz += color;
 }

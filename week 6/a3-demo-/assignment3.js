@@ -12,7 +12,7 @@ export class Assignment3 extends Scene {
         // At the beginning of our program, load one of each of these shape definitions onto the GPU.
         this.shapes = {
             sphere1: new defs.Subdivision_Sphere(3),
-            sphere2: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(3),
+            sphere2: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(2),
             // TODO:  Fill in as many additional shape instances as needed in this key/value table.
             //        (Requirement 1)
             circle: new defs.Regular_2D_Polygon(1, 15),
@@ -23,13 +23,14 @@ export class Assignment3 extends Scene {
             // TODO:  Fill in as many additional material objects as needed in this key/value table.
             //        (Requirement 4)
             phong: new Material(new defs.Phong_Shader(),
-                {ambient: .4, diffusivity: .6, specularity: .8, smoothness: 100, color: hex_color("#fff53e")}),
+                {ambient: .4, diffusivity: .6, specularity: .8, smoothness: 40, color: hex_color("#fff53e")}),
             gouraud: new Material(new Gouraud_Shader(),
-                {ambient: .4, diffusivity: .6, specularity: .8, smoothness: 100, color: hex_color("#fff53e")}),
+                {ambient: .4, diffusivity: .6, specularity: .8, smoothness: 40, color: hex_color("#fff53e")}),
             ring: new Material(new Ring_Shader()),
         }
 
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
+        this.attached = () => this.initial_camera_location;
     }
 
     make_control_panel() {
@@ -53,6 +54,7 @@ export class Assignment3 extends Scene {
             // Define the global camera and projection matrices, which are stored in program_state.
             program_state.set_camera(this.initial_camera_location);
         }
+        program_state.set_camera(this.attached());
 
         program_state.projection_transform = Mat4.perspective(
             Math.PI / 4, context.width / context.height, .1, 1000);
@@ -99,7 +101,6 @@ class Gouraud_Shader extends Shader {
         // on to the next phase (fragment shader), then interpolated per-fragment, weighted by the
         // pixel fragment's proximity to each of the 3 vertices (barycentric interpolation).
         varying vec3 N, vertex_worldspace;
-        varying vec3 color;        
         
         // ***** PHONG SHADING HAPPENS HERE: *****                                       
         vec3 phong_model_lights( vec3 N, vec3 vertex_worldspace ){                                        
@@ -142,13 +143,14 @@ class Gouraud_Shader extends Shader {
             uniform mat4 model_transform;
             uniform mat4 projection_camera_model_transform;
     
+            varying vec3 color;
             void main(){
                 // The vertex's final resting place (in NDCS):
                 gl_Position = projection_camera_model_transform * vec4(position, 1.0);
                 // The final normal vector in screen space.
                 N = normalize(mat3(model_transform) * normal / squared_scale);
                 vertex_worldspace = (model_transform * vec4(position, 1.0)).xyz;
-                color = phong_model_lights(normalize(N), vertex_worldspace);
+                color = phong_model_lights( normalize( N ), vertex_worldspace );
             } `;
     }
 
@@ -157,12 +159,13 @@ class Gouraud_Shader extends Shader {
         // A fragment is a pixel that's overlapped by the current triangle.
         // Fragments affect the final image or get discarded due to depth.
         return this.shared_glsl_code() + `
+            varying vec3 color;
             void main(){
-            // Compute an initial (ambient) color:
-            gl_FragColor = vec4(shape_color.xyz * ambient, shape_color.w);
-            // Compute the final color with contributions from lights:
-            gl_FragColor.xyz += color;
-        } `;
+                // Compute an initial (ambient) color:
+                gl_FragColor = vec4( shape_color.xyz * ambient, shape_color.w );
+                // Compute the final color with contributions from lights:
+                gl_FragColor.xyz += color;
+            }`;
     }
 
     send_material(gl, gpu, material) {
@@ -251,8 +254,11 @@ class Ring_Shader extends Shader {
         uniform mat4 model_transform;
         uniform mat4 projection_camera_model_transform;
         
+        
         void main(){
             gl_Position = projection_camera_model_transform * vec4(position, 1.0 );
+            center = model_transform * vec4(0., 0., 0., 1.);
+            point_position = model_transform * vec4(position, 1.0);
         }`;
     }
 
@@ -261,7 +267,10 @@ class Ring_Shader extends Shader {
         // TODO:  Complete the main function of the fragment shader (Extra Credit Part II).
         return this.shared_glsl_code() + `
         void main(){
-            gl_FragColor = vec4(1., 1., 1., 1.);
+            float c = mod(floor(point_position.x) + floor(point_position.y), 2.);
+            float d = length(point_position.xyz - center.xyz);
+            float v = (sin(d * 30.) + 1.) /2.;
+            gl_FragColor = vec4(c, c, c, 1.);
         }`;
     }
 }

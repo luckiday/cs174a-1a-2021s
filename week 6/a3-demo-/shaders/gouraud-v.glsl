@@ -1,7 +1,7 @@
 #version 120
 
 precision mediump float;
-const int N_LIGHTS = 1;
+const int N_LIGHTS = 2;
 uniform float ambient, diffusivity, specularity, smoothness;
 uniform vec4 light_positions_or_vectors[N_LIGHTS], light_colors[N_LIGHTS];
 uniform float light_attenuation_factors[N_LIGHTS];
@@ -49,10 +49,13 @@ attribute vec3 position, normal;
 uniform mat4 model_transform;
 uniform mat4 projection_camera_model_transform;
 
+
+varying vec3 color;
 void main(){
     // The vertex's final resting place (in NDCS):
     gl_Position = projection_camera_model_transform * vec4(position, 1.0);
     // The final normal vector in screen space.
     N = normalize(mat3(model_transform) * normal / squared_scale);
     vertex_worldspace = (model_transform * vec4(position, 1.0)).xyz;
+    color = phong_model_lights( normalize( N ), vertex_worldspace );
 }
