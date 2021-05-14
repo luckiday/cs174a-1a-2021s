@@ -750,7 +750,7 @@ const Textured_Phong = defs.Textured_Phong =
             // ********* FRAGMENT SHADER *********
             // A fragment is a pixel that's overlapped by the current triangle.
             // Fragments affect the final image or get discarded due to depth.
-            return this.shared_glsl_code() + `
+            return this.shared_glsl_c_ode() + `
                 varying vec2 f_tex_coord;
                 uniform sampler2D texture;
                 uniform float animation_time;

@@ -23,8 +23,10 @@ export class Assignment4 extends Scene {
             box_2: new Cube(),
             axis: new Axis_Arrows()
         }
-        console.log(this.shapes.box_1.arrays.texture_coord.length)
-
+        console.log(this.shapes.box_1.arrays.texture_coord)
+        for (let i = 0; i < this.shapes.box_1.arrays.texture_coord.length; i++) {
+            // this.shapes.box_1.arrays.texture_coord[i].scale_by(2);
+        }
         // TODO:  Create the materials required to texture both cubes with the correct images and settings.
         //        Make each Material from the correct shader.  Phong_Shader will work initially, but when
         //        you get to requirements 6 and 7 you will need different ones.
@@ -33,9 +35,14 @@ export class Assignment4 extends Scene {
                 color: hex_color("#ffffff"),
             }),
             texture: new Material(new Textured_Phong(), {
-                color: hex_color("#ffffff"),
-                ambient: 0.5, diffusivity: 0.1, specularity: 0.1,
+                color: hex_color("#000000"),
+                ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/stars.png")
+            }),
+            texture_2: new Material(new Texture_Scroll_X(), {
+                color: hex_color("#000000"),
+                ambient: 1.0, diffusivity: 0.1, specularity: 0.1,
+                texture: new Texture("assets/earth.gif")
             }),
         }
 
@@ -63,7 +70,7 @@ export class Assignment4 extends Scene {
         let model_transform = Mat4.identity();
 
         // TODO:  Draw the required boxes. Also update their stored matrices.
-        this.shapes.box_1.draw(context, program_state, model_transform, this.materials.texture);
+        this.shapes.box_1.draw(context, program_state, model_transform, this.materials.texture_2);
     }
 }
 
@@ -75,10 +82,20 @@ class Texture_Scroll_X extends Textured_Phong {
             varying vec2 f_tex_coord;
             uniform sampler2D texture;
             uniform float animation_time;
-            
-            oid main(){
+            void main(){
                 // Sample the texture image in the correct place:
-                vec4 tex_color = texture2D( texture, f_tex_coord );
+                // vec2 new_coor = vec2(f_tex_coord.x + animation_time, f_tex_coord.y);
+                float t = animation_time;
+                float x = f_tex_coord.x * 2.;
+                float y = f_tex_coord.y * 2.;
+                x = x - 1.0;
+                y = y - 1.0;
+                // vec2 new_coor = vec2(
+                //     sin(t) * x - cos(t) * y + 1.,
+                //     cos(t) * x + sin(t) * y + 1.
+                // );
+                vec2 new_coor = mat2(sin(t), cos(t), -cos(t), sin(t)) * vec2(x,y) + 1.;
+                vec4 tex_color = texture2D( texture, new_coor);
                 if( tex_color.w < .01 ) discard;
                                                                          // Compute an initial (ambient) color:
                 gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w ); 
