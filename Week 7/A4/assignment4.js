@@ -24,9 +24,6 @@ export class Assignment4 extends Scene {
             axis: new Axis_Arrows()
         }
         console.log(this.shapes.box_1.arrays.texture_coord.length)
-        for (let i = 0; i < this.shapes.box_1.arrays.texture_coord.length; i++) {
-            this.shapes.box_1.arrays.texture_coord[i].scale_by(2);
-        }
 
         // TODO:  Create the materials required to texture both cubes with the correct images and settings.
         //        Make each Material from the correct shader.  Phong_Shader will work initially, but when
@@ -37,11 +34,6 @@ export class Assignment4 extends Scene {
             }),
             texture: new Material(new Textured_Phong(), {
                 color: hex_color("#ffffff"),
-                ambient: 0.5, diffusivity: 0.1, specularity: 0.1,
-                texture: new Texture("assets/stars.png")
-            }),
-            texture_2: new Material(new Texture_Scroll_X(), {
-                color: hex_color("#100707"),
                 ambient: 0.5, diffusivity: 0.1, specularity: 0.1,
                 texture: new Texture("assets/stars.png")
             }),
@@ -71,7 +63,7 @@ export class Assignment4 extends Scene {
         let model_transform = Mat4.identity();
 
         // TODO:  Draw the required boxes. Also update their stored matrices.
-        this.shapes.box_1.draw(context, program_state, model_transform, this.materials.texture_2);
+        this.shapes.box_1.draw(context, program_state, model_transform, this.materials.texture);
     }
 }
 
@@ -84,13 +76,9 @@ class Texture_Scroll_X extends Textured_Phong {
             uniform sampler2D texture;
             uniform float animation_time;
             
-            void main(){
+            oid main(){
                 // Sample the texture image in the correct place:
-                // vec2 new_coord = vec2(f_tex_coord.x + animation_time, f_tex_coord.y);
-                vec2 new_coord = vec2(f_tex_coord.x * sin(animation_time) - f_tex_coord.y * cos(animation_time),
-                 f_tex_coord.x * cos(animation_time) + f_tex_coord.y * sin(animation_time));
-                // vec2 new_coord = mat2(sin(animation_time), -cos(animation_time), cos(animation_time), sin(animation_time)) * f_tex_coord;
-                vec4 tex_color = texture2D( texture, new_coord);
+                vec4 tex_color = texture2D( texture, f_tex_coord );
                 if( tex_color.w < .01 ) discard;
                                                                          // Compute an initial (ambient) color:
                 gl_FragColor = vec4( ( tex_color.xyz + shape_color.xyz ) * ambient, shape_color.w * tex_color.w ); 
