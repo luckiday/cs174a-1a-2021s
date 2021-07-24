@@ -28,4 +28,4 @@
 - Assignment 4
 
 ### Week 9
-- Common techniques
+- Common techniques in CG
